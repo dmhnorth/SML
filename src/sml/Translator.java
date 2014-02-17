@@ -103,6 +103,10 @@ public class Translator {
 			s1 = scanInt();
 			s2 = scanInt();
 			return new DivideInstruction(label, r, s1, s2);
+		case "out":
+			r = scanInt();
+			s1 = scanInt();
+			return new OutInstruction(label, r, s1);
 		case "lin":
 			r = scanInt();
 			s1 = scanInt();
