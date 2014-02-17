@@ -1,7 +1,7 @@
 package sml;
 
 /**
- * This class ....
+ * This class .... 
  * 
  * @author someone
  */
