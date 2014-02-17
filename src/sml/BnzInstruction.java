@@ -8,31 +8,26 @@ package sml;
 
 public class BnzInstruction extends Instruction {
 
-	private int op1;
+	private int register;
 	private String nextLabel;
 
 	public BnzInstruction(String label, String op) {
 		super(label, op);
 	}
 
-	public BnzInstruction(String label, int result, int op1, String nextLabel) {
+	public BnzInstruction(String label, int register, String nextLabel) {
 		this(label, "bnz");
-		this.op1 = op1;
+		this.register = register;
 		this.nextLabel = nextLabel;
 	}
 
 	@Override
 	public void execute(Machine m) {
 		
-		if (m.getRegisters().getRegister(op1) != 0) {
-			int pcCounter = 0;
-			for (Instruction inst : m.getProg()) {
-				if (inst.label.equals(nextLabel)) {
-					m.setPc(pcCounter);
-					break;
-				}
-				++pcCounter;
-			}
+		int index = m.getLabels().indexOf(nextLabel);
+
+		if(m.getRegisters().getRegister(register) != 0) {
+			m.setPc(index);
 		}
 	}
 

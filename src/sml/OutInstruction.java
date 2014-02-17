@@ -13,7 +13,7 @@ public class OutInstruction extends Instruction {
 		super(label, opcode);
 	}
 
-	public OutInstruction(String label, int register, int value) {
+	public OutInstruction(String label, int register) {
 		super(label, "out");
 		this.register = register;
 
