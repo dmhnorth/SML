@@ -1,9 +1,12 @@
 package sml;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.Properties;
 import java.util.Scanner;
 
 /*
@@ -19,10 +22,10 @@ public class Translator {
 	private ArrayList<Instruction> program; // The program to be created
 	private String fileName; // source file of SML code
 
-	private static final String SRC = "src";
+	private static final String SRC = "src/";
 
 	public Translator(String fileName) {
-		this.fileName = SRC + "/" + fileName;
+		this.fileName = SRC + fileName;
 	}
 
 	// translate the small program in the file into lab (the labels) and
@@ -44,6 +47,7 @@ public class Translator {
 		try {
 			line = sc.nextLine();
 		} catch (NoSuchElementException ioE) {
+			sc.close();
 			return false;
 		}
 
@@ -63,9 +67,11 @@ public class Translator {
 			try {
 				line = sc.nextLine();
 			} catch (NoSuchElementException ioE) {
+				sc.close();
 				return false;
 			}
 		}
+		sc.close();
 		return true;
 	}
 
@@ -73,54 +79,52 @@ public class Translator {
 	// removed. Translate line into an instruction with label label
 	// and return the instruction
 	public Instruction getInstruction(String label) {
-		int s1; // Possible operands of the instruction
-		int s2;
-		int r;
-		int x;
-		String L2;
 
 		if (line.equals(""))
 			return null;
 
 		String ins = scan();
-		switch (ins) {
-		case "add":
-			r = scanInt();
-			s1 = scanInt();
-			s2 = scanInt();
-			return new AddInstruction(label, r, s1, s2);
-		case "sub":
-			r = scanInt();
-			s1 = scanInt();
-			s2 = scanInt();
-			return new SubtractInstruction(label, r, s1, s2);
-		case "mul":
-			r = scanInt();
-			s1 = scanInt();
-			s2 = scanInt();
-			return new MultiplyInstruction(label, r, s1, s2);
-		case "div":
-			r = scanInt();
-			s1 = scanInt();
-			s2 = scanInt();
-			return new DivideInstruction(label, r, s1, s2);
-		case "out":
-			s1 = scanInt();
-			return new OutInstruction(label, s1);
-		case "bnz":
-			s1 = scanInt();
-			L2 = scan();
-			return new BnzInstruction(label, s1, L2);
-		case "lin":
-			r = scanInt();
-			s1 = scanInt();
-			return new LinInstruction(label, r, s1);
+		
+		Properties props = new Properties();
+		
+		try {
+			FileInputStream propText = new FileInputStream(SRC + "instruction.properties");
+			props.load(propText);
+			String className = props.getProperty(ins);
+			
+			Class<?> instructionClass = Class.forName(className);
+			
+			Constructor<?>[] constructors = instructionClass.getConstructors();
+			
+			//Assumes the last constructor is the one that is required.
+			Constructor<?> constructor = constructors[constructors.length-1];
+			
+			Class<?>[] parameters = constructors[constructors.length-1].getParameterTypes();
+			
+			Object[] values = new Object[parameters.length];
+			
+			values[0] = label;
+			
+			for (int i = 1; i < values.length; i++) {
+				if (parameters[i] == (Class.forName("java.lang.String"))) {
+					values[i] = scan();
+				}else if (parameters[i] == int.class){
+					values[i] = scanInt();
+				}
+			}
+			return (Instruction) constructor.newInstance(values);
+			
+		
+		
+		} catch (Exception e) {
+			System.out.println("The program failed to reflect accurately.");
+			e.printStackTrace();
 		}
-
-		// You will have to write code here for the other instructions.
-
 		return null;
-	}
+			
+			
+		}
+	
 
 	/*
 	 * Return the first word of line and remove it from line. If there is no
