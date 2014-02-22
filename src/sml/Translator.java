@@ -9,6 +9,9 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
 
+import apple.laf.JRSUIConstants.Size;
+import sun.security.util.Length;
+
 /*
  * The translator of a <b>S</b><b>M</b>al<b>L</b> program.
  */
@@ -92,14 +95,13 @@ public class Translator {
 			props.load(propText);
 			String className = props.getProperty(ins);
 			
+			//Collects the class type
 			Class<?> instructionClass = Class.forName(className);
 			
-			Constructor<?>[] constructors = instructionClass.getConstructors();
+			//Assuming the last constructor in a class is the one that is required.
+			Constructor<?> constructor = instructionClass.getConstructors()[instructionClass.getConstructors().length-1];
 			
-			//Assumes the last constructor is the one that is required.
-			Constructor<?> constructor = constructors[constructors.length-1];
-			
-			Class<?>[] parameters = constructors[constructors.length-1].getParameterTypes();
+			Class<?>[] parameters = constructor.getParameterTypes();
 			
 			Object[] values = new Object[parameters.length];
 			
