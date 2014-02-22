@@ -87,45 +87,42 @@ public class Translator {
 			return null;
 
 		String ins = scan();
-		
+
 		Properties props = new Properties();
-		
+
 		try {
 			FileInputStream propText = new FileInputStream(SRC + "instruction.properties");
 			props.load(propText);
 			String className = props.getProperty(ins);
-			
+
 			//Collects the class type
 			Class<?> instructionClass = Class.forName(className);
-			
+
 			//Assuming the last constructor in a class is the one that is required.
 			Constructor<?> constructor = instructionClass.getConstructors()[instructionClass.getConstructors().length-1];
-			
+
 			Class<?>[] parameters = constructor.getParameterTypes();
-			
+
 			Object[] values = new Object[parameters.length];
-			
-			values[0] = label;
-			
-			for (int i = 1; i < values.length; i++) {
-				if (parameters[i] == (Class.forName("java.lang.String"))) {
+
+			//Populates the value array with correct parameters
+			for (int i = 0; i < values.length; i++) {
+				if (i == 0){
+					values[i] = label;
+				} else if (parameters[i] == (Class.forName("java.lang.String"))) {
 					values[i] = scan();
-				}else if (parameters[i] == int.class){
+				} else if (parameters[i] == int.class){
 					values[i] = scanInt();
 				}
 			}
 			return (Instruction) constructor.newInstance(values);
-			
-		
-		
+
 		} catch (Exception e) {
 			System.out.println("The program failed to reflect accurately.");
 			e.printStackTrace();
 		}
 		return null;
-			
-			
-		}
+	}
 	
 
 	/*
