@@ -9,9 +9,6 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
 
-import apple.laf.JRSUIConstants.Size;
-import sun.security.util.Length;
-
 /*
  * The translator of a <b>S</b><b>M</b>al<b>L</b> program.
  */
